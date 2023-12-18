@@ -1,3 +1,6 @@
+10-Fold Cross Evaluation
+------------------------
+
 Logistic Regression (default)
 Log Loss: 0.626 +- 0.018
 
@@ -10,3 +13,5 @@ Log Loss: 0.505 +- 0.034
 XGBoost (scaled)
 Log Loss: 0.505 +- 0.034
 
+XGBoost (tuned)
+Log Loss: 0.443 +- 0.024

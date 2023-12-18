@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import KFold, cross_val_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
 from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
 
@@ -28,19 +27,33 @@ def load_data():
 
 
 def train(X_train, y_train):
-    clf = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', XGBClassifier())
-    ])
+    clf = XGBClassifier()
 
-    clf.fit(X_train, y_train)
+    # Parameter search space
+    param_grid = {
+        'min_child_weight': [10],
+        'gamma': [2],
+        'subsample': [0.7],
+        'colsample_bytree': [0.4],
+        'max_depth': [4]
+    }
 
-    # Evaluation (via cross validation)
+    # Grid search cross-validation
+    grid_search = GridSearchCV(clf, param_grid, scoring='neg_log_loss', cv=10, n_jobs=-1)
+    grid_search.fit(X_train, y_train)
+
+    # Get the best parameters and the fitted model
+    best_params = grid_search.best_params_
+    print("Best Parameters:", best_params)
+
+    best_clf = grid_search.best_estimator_
+
+    # Evaluation (via cross-validation)
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
-    scores = cross_val_score(clf, X_train, y_train, scoring='neg_log_loss', cv=cv, n_jobs=-1)
+    scores = cross_val_score(best_clf, X_train, y_train, scoring='neg_log_loss', cv=cv, n_jobs=-1)
     print('Log Loss: %.3f +- %.3f' % (-np.mean(scores), np.std(scores)))
 
-    return clf
+    return best_clf
 
 
 def predict(clf, X_test):

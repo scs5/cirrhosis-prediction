@@ -28,15 +28,15 @@ def load_data():
 
 
 def train(X_train, y_train):
-    # Parameter search space
-    param_grid = {'classifier__C': [0.001, 0.01, 0.1, 1, 10, 100],
-                  'classifier__penalty': ['l1', 'l2'],
-                  'classifier__solver': ['newton-cg', 'liblinear']}
-    
     clf = Pipeline([
         ('scaler', StandardScaler()),
         ('classifier', LogisticRegression())
     ])
+
+    # Parameter search space
+    param_grid = {'classifier__C': [0.001, 0.01, 0.1, 1, 10, 100],
+                  'classifier__penalty': ['l1', 'l2'],
+                  'classifier__solver': ['newton-cg', 'liblinear']}
 
     # Grid search cross validation
     grid_search = GridSearchCV(clf, param_grid, scoring='neg_log_loss', cv=10, n_jobs=-1)
