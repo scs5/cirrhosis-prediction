@@ -15,3 +15,6 @@ Log Loss: 0.505 +- 0.034
 
 XGBoost (tuned)
 Log Loss: 0.443 +- 0.024
+
+XGBoost (tuned + w/o ID)
+Log Loss: 0.443 +- 0.022
