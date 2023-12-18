@@ -1,0 +1,12 @@
+Logistic Regression (default)
+Log Loss: 0.626 +- 0.018
+
+Logistic Regression (tuned & scaled)
+Log Loss: 0.525 +- 0.022
+
+XGBoost (default)
+Log Loss: 0.505 +- 0.034
+
+XGBoost (scaled)
+Log Loss: 0.505 +- 0.034
+
