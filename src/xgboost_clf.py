@@ -71,7 +71,7 @@ def visualize_feature_importances(clf):
     plt.ylabel('Feature')
     plt.title('XGBoost Feature Importances')
     plt.tight_layout()
-    plt.savefig('./figures/feature_importances.png')
+    plt.savefig('./figures/feature_importances.png', bbox_inches='tight')
     plt.show()
 
 
