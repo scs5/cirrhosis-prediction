@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
-from sklearn.pipeline import Pipeline
 from xgboost import XGBClassifier
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 CLASS_DICT = {'C': 0, 'CL': 1, 'D': 2}
 
@@ -56,6 +56,25 @@ def train(X_train, y_train):
     return best_clf
 
 
+def visualize_feature_importances(clf):
+    feature_importances = clf.feature_importances_
+    feature_names = clf.get_booster().feature_names
+
+    importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': feature_importances})
+    importance_df = importance_df.sort_values(by='Importance', ascending=False)
+
+    # Create a sideways bar plot using seaborn
+    plt.figure(figsize=(12, 8))
+    sns.set_theme()
+    ax = sns.barplot(x='Importance', y='Feature', data=importance_df, orient='h', hue='Feature', palette='viridis')
+    plt.xlabel('Importance')
+    plt.ylabel('Feature')
+    plt.title('XGBoost Feature Importances')
+    plt.tight_layout()
+    plt.savefig('./figures/feature_importances.png')
+    plt.show()
+
+
 def predict(clf, X_test):
     prob_pred = clf.predict_proba(X_test)
     class_labels = ['Status_' + label for label in CLASS_DICT.keys()]
@@ -71,4 +90,5 @@ def predict(clf, X_test):
 if __name__ == '__main__':
     X_train, X_test, y_train = load_data()
     clf = train(X_train, y_train)
+    #visualize_feature_importances(clf)
     predict(clf, X_test)
