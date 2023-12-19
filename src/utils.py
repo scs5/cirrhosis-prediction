@@ -8,6 +8,10 @@ def load_data():
     # Load raw data
     train = pd.read_csv('./data/train.csv')
     test = pd.read_csv('./data/test.csv')
+    original = pd.read_csv('./data/original.csv')
+
+    # Add original data to training data
+    train = pd.concat([train, original], ignore_index=True)
 
     # Split into features/labels
     X_train = train.drop('Status', axis=1)

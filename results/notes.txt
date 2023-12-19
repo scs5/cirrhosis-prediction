@@ -1,20 +1,34 @@
-10-Fold Cross Evaluation
+Modeling Results
 ------------------------
 
 Logistic Regression (default)
-Log Loss: 0.626 +- 0.018
+10-Fold CV: 0.626 +- 0.018
 
 Logistic Regression (tuned & scaled)
-Log Loss: 0.525 +- 0.022
+10-Fold CV: 0.525 +- 0.022
 
 XGBoost (default)
-Log Loss: 0.505 +- 0.034
+10-Fold CV: 0.505 +- 0.034
+Public LB: 0.49128
 
 XGBoost (scaled)
-Log Loss: 0.505 +- 0.034
+10-Fold CV: 0.505 +- 0.034
 
 XGBoost (tuned)
-Log Loss: 0.443 +- 0.024
+10-Fold CV: 0.443 +- 0.024
 
 XGBoost (tuned + w/o ID)
-Log Loss: 0.443 +- 0.022
+10-Fold CV: 0.443 +- 0.022
+Public LB: 0.425
+
+XGBoost (tuned, w/o ID, w/ original data)
+10-Fold CV: 0.438 +- 0.020
+Public LB: 0.41217
+
+XGBoost (Optuna + above)
+10-Fold CV: 0.426 +- 0.021
+Public LB: 0.4058
+
+XGBoost (further tuning w/ n_estimators)
+10-Fold CV: 0.416 +- 0.020
+Public LB: 0.40016

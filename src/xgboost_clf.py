@@ -5,29 +5,47 @@ from xgboost import XGBClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 from utils import *
+import optuna
+import pickle
 
 
-def train(X_train, y_train):
-    clf = XGBClassifier()
-
-    # Parameter search space
-    param_grid = {
-        'min_child_weight': [10],
-        'gamma': [2],
-        'subsample': [0.7],
-        'colsample_bytree': [0.4],
-        'max_depth': [4]
+def objective(trial, X, y):
+    params = {
+        "learning_rate": trial.suggest_float("learning_rate", 1e-3, 0.1, log=True),
+        "max_depth": trial.suggest_int("max_depth", 1, 10),
+        "subsample": trial.suggest_float("subsample", 0.05, 1.0),
+        "colsample_bytree": trial.suggest_float("colsample_bytree", 0.05, 1.0),
+        "min_child_weight": trial.suggest_int("min_child_weight", 1, 20),
+        "n_estimators": trial.suggest_int("n_estimators", 100, 2000),
     }
 
-    # Grid search cross-validation
-    grid_search = GridSearchCV(clf, param_grid, scoring='neg_log_loss', cv=10, n_jobs=-1)
-    grid_search.fit(X_train, y_train)
+    model = XGBClassifier(**params)
+    cv = KFold(n_splits=10, random_state=1, shuffle=True)
+    scores = cross_val_score(model, X, y, scoring='neg_log_loss', cv=cv, n_jobs=-1)
+    return -np.mean(scores)
 
-    # Get the best parameters and the fitted model
-    best_params = grid_search.best_params_
-    print("Best Parameters:", best_params)
 
-    best_clf = grid_search.best_estimator_
+def train(X_train, y_train, model=None):
+    if model:
+        with open('best_xgb.pkl', 'rb') as model_file:
+            best_clf = pickle.load(model_file)
+    else:
+        # Tune hyperparameters via Optuna
+        study = optuna.create_study(direction="minimize")
+        objective_func = lambda trial: objective(trial, X_train, y_train)
+        study.optimize(objective_func, n_trials=100)
+
+        # Retrieve best parameters
+        best_params = study.best_params
+        print("Best Parameters:", best_params)
+
+        # Train classifier with best parameters
+        best_clf = XGBClassifier(**best_params)
+        best_clf.fit(X_train, y_train)
+
+        # Save the trained model using pickle
+        with open('./models/xgb.pkl', 'wb') as model_file:
+            pickle.dump(best_clf, model_file)
 
     # Evaluation (via cross-validation)
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
@@ -72,5 +90,5 @@ if __name__ == '__main__':
     X_train, X_test, y_train = load_data()
     X_train, X_test, y_train, test_IDs = preprocess_data(X_train, X_test, y_train)
     clf = train(X_train, y_train)
-    visualize_feature_importances(clf)
+    #visualize_feature_importances(clf)
     predict(clf, X_test, test_IDs)
