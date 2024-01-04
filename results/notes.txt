@@ -32,3 +32,11 @@ Public LB: 0.4058
 XGBoost (further tuning w/ n_estimators)
 10-Fold CV: 0.416 +- 0.020
 Public LB: 0.40016
+
+XGBoost (9 latent features, 50 tuning iterations)
+Log Loss: 0.544 +- 0.029
+Public LB: 0.5481
+
+XGBoost (15 latent features, 50 tuning iterations)
+Log Loss: 0.533 +- 0.026
+Public LB: 0.52581

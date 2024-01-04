@@ -1,29 +1,46 @@
-from keras.layers import Input, Dense
-from keras.models import Model
+from tabular_dae import DAE
 from utils import *
-import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 
-def autoencoder():
-    num_features = 21
+def autoencode():
+    """
+    Learn latent features via tabular autoencoder. Output the
+    concatenated features to a new csv.
+    """
+    # Read data
+    X_train, X_test, _ = load_data()
+    X_train, X_test, _, _ = preprocess_data(X_train, X_test, _)
 
-    input_layer = Input(shape=(num_features,))
-    encoded = Dense(10, activation='relu')(input_layer)
-    decoded = Dense(num_features, activation='sigmoid')(encoded)
+    # Scale the data
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
 
-    autoencoder = Model(inputs=input_layer, outputs=decoded)
-    autoencoder.compile(optimizer='adam', loss='mean_squared_error')
-    return autoencoder
+    # Combine the data
+    X_train_df = pd.DataFrame(X_train_scaled, columns=X_train.columns)
+    X_test_df = pd.DataFrame(X_test_scaled, columns=X_test.columns)
+    combined_df = pd.concat([X_test_df, X_train_df], axis=0)
+    combined_df.reset_index(drop=True, inplace=True)
+
+    # Fit the model on the combined data
+    dae = DAE()
+    dae.fit(combined_df, verbose=1)
+
+    # Extract latent representation with the model
+    train_latent = dae.transform(X_train_df)
+    test_latent = dae.transform(X_test_df)
+
+    # Combine the latent features with the original data
+    latent_columns = [f"Latent{i}" for i in range(1, train_latent.shape[1] + 1)]
+    train_latent = pd.DataFrame(train_latent, columns=latent_columns)
+    test_latent = pd.DataFrame(test_latent, columns=latent_columns)
+
+    # Save the combined data to a csv file
+    train_latent.to_csv(TRAIN_LATENT_FN, index=False)
+    test_latent.to_csv(TEST_LATENT_FN, index=False)
 
 
 if __name__ == '__main__':
-    X_train, X_test, y_train = load_data()
-    X_train, X_test, y_train, _ = preprocess_data(X_train, X_test, y_train)
-
-    # Combine training and testing data (excluding the 'status' column)
-    combined_data = np.concatenate((X_train, X_test), axis=0)
-
-    # Train the autoencoder on the combined data
-    ae_model = autoencoder()
-    ae_model.fit(combined_data, combined_data, epochs=50, batch_size=32, shuffle=True)
-    ae_model.save('./models/autoencoder_model.h5')
+    autoencode()
