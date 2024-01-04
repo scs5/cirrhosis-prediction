@@ -8,6 +8,16 @@ from utils import *
 
 
 def train(X_train, y_train):
+    """ Train logistic classification model.
+
+    Args:
+        - X_train (pd.Dataframe): train features
+        - y_train (pd.Dataframe): test labels
+
+    Returns:
+        - Fitted logistic classification model
+    """
+    # Set up classifier pipeline
     clf = Pipeline([
         ('scaler', StandardScaler()),
         ('classifier', LogisticRegression())
@@ -18,7 +28,7 @@ def train(X_train, y_train):
                   'classifier__penalty': ['l1', 'l2'],
                   'classifier__solver': ['newton-cg', 'liblinear']}
 
-    # Grid search cross validation
+    # Grid search
     grid_search = GridSearchCV(clf, param_grid, scoring='neg_log_loss', cv=10, n_jobs=-1)
     grid_search.fit(X_train, y_train)
 
@@ -42,19 +52,32 @@ def train(X_train, y_train):
 
 
 def predict(clf, X_test, test_IDs):
+    """ Predict test labels with classification model.
+
+    Args:
+        - clf: classification model
+        - X_test (pd.Dataframe): test features
+        - test_IDs (list(int)): list of test IDs
+    """
+    # Find probabilities of each class
     prob_pred = clf.predict_proba(X_test)
     class_labels = ['Status_' + label for label in CLASS_DICT.keys()]
 
+    # Concatenate predictions with IDs
     prob_df = pd.DataFrame(prob_pred, columns=class_labels)
     prob_df['id'] = test_IDs
     columns_order = ['id'] + list(class_labels)
     prob_df = prob_df[columns_order]
 
-    prob_df.to_csv('./data/predictions.csv', index=False)
+    # Output final predictions to csv
+    prob_df.to_csv(PREDICTIONS_FN, index=False)
 
 
 if __name__ == '__main__':
+    # Load and preprocess data
     X_train, X_test, y_train = load_data()
     X_train, X_test, y_train, test_IDs = preprocess_data(X_train, X_test, y_train)
+
+    # Train model and make predictions
     clf = train(X_train, y_train)
     predict(clf, X_test, test_IDs)

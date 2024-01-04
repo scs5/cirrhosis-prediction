@@ -1,14 +1,27 @@
 import pandas as pd
 
-
+# Label encoding for classes
 CLASS_DICT = {'C': 0, 'CL': 1, 'D': 2}
+
+# Data files
+TRAIN_DATA_FN = './data/train.csv'
+TEST_DATA_FN = './data/test.csv'
+ORIGINAL_DATA_FN = './data/original.csv'
+PREDICTIONS_FN = './data/predictions.csv'
+TRAIN_LATENT_FN = './data/train_latent.csv'
+TEST_LATENT_FN = './data/test_latent.csv'
 
 
 def load_data():
+    """ Load kaggle data from csvs
+
+    Returns:
+        - pd.Dataframes: train features, test features, train labels
+    """
     # Load raw data
-    train = pd.read_csv('./data/train.csv')
-    test = pd.read_csv('./data/test.csv')
-    original = pd.read_csv('./data/original.csv')
+    train = pd.read_csv(TRAIN_DATA_FN)
+    test = pd.read_csv(TEST_DATA_FN)
+    original = pd.read_csv(ORIGINAL_DATA_FN)
 
     # Add original data to training data
     train = pd.concat([train, original], ignore_index=True)
@@ -22,6 +35,17 @@ def load_data():
 
 
 def preprocess_data(X_train, X_test, y_train):
+    """ Preprocess and clean data.
+
+    Args:
+        - X_train (pd.Dataframe): train features
+        - X_test (pd.Dataframe): test features
+        - y_train (pd.Dataframe): train labels
+
+    Returns:
+        - pd.Dataframes: cleaned data
+        - list(int): IDs of test data (for final prediction output)
+    """
     # Remove useless features
     useless_features = ['id']
     test_IDs = X_test['id'].to_list()
