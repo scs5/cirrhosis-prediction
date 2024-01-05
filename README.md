@@ -1,4 +1,5 @@
 # Prediction of Cirrhosis Outcomes
+<img src="./figures/banner_image.webp" alt="Liver Cirrhosis" width="500">
 
 ## Overview
 This repository contains my solution for the [Kaggle challenge](https://www.kaggle.com/competitions/playground-series-s3e26/overview) aimed at predicting the outcomes of patients with liver cirrhosis. I placed in the top 15%.
